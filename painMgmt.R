@@ -14,7 +14,7 @@ patients <- read.csv("Patients.csv",TRUE, ",")
 class(patients)
 head(patients)
 
-#reading pains
+#reading pains  
 pains <- read.csv("Pain.csv",TRUE, ",")
 class(pains)
 head(pains)
