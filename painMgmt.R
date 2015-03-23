@@ -57,7 +57,7 @@ avg8 = patientAvgPain("153788")
 avg9 = patientAvgPain("154545")
 avg10 = patientAvgPain("154677")
 
-#adding avg to the dataFrame
+#adding avg to the dataFrame 
 patients$avgPain[patients$Log.id == "150094"] <- avg
 patients$avgPain[patients$Log.id == "150440"] <- avg2
 patients$avgPain[patients$Log.id == "150934"] <- avg3
@@ -94,7 +94,18 @@ plot(avgPain, Age)
 abline(lm(avgPain~Age, data=patients))
 
 
-
 #Linear Model
 summary(fit)
 plot(fit)
+##################### Finding the UNIQUE patients in pains.csv ############################
+
+uniqPains <- pains[ !duplicated( pains[ c("Log.id") ] ) , ] #Finding the unique rows
+head(uniqPains)
+nrow(uniqPains)
+
+################## Retrieving PATIENT details AND their respective PAIN ###################
+
+nrow(patients)
+nrow(uniqPains)
+head(patients)
+head(uniqPains)
