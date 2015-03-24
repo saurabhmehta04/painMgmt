@@ -92,8 +92,9 @@ View(patients)
 cv.lm(df=patients, lm.fit1, m=7)
 
 
-#removing 161687 
-patients$Log.id == 161687 <- NULL 
-
+############## Writing the patients to xlsx file ###################
+install.packages("xlsx")
+library(xlsx)
+write.xlsx(patients, file = "patientsWithAvgPain.xlsx")
 
 
