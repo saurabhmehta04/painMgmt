@@ -1,13 +1,4 @@
-install.packages("gdata") #reading the .xlsx format
-install.packages("RODBC") #reading the entire excel workbook
-install.packages("devtools")
-library(gdata)
-library(RODBC)
-getwd()
 setwd("~/Desktop/Development/Spring 2015/painMgmt")
-data <- read.xls("data.xlsx")
-
-#converting the xlsx file to CSV as there are more functionality in CSV
 
 #reading Patients
 patients <- read.csv("Patients.csv",TRUE, ",")
@@ -24,88 +15,85 @@ medications <- read.csv("Medications.csv",TRUE, ",")
 class(patients)
 head(patients)
 
-#painMedication.df = data.frame(pains, medications) #Doesn't work
 
-#using Merge function
-painMedication = merge(pains, medications)
-class(painMedication)
-head(painMedication)
-
-#Calculating average pain of particular patients
-painAvg_150094 <- subset(pains, pains$Log.id == "150094")
-dim(painAvg_150094)
-head(painAvg_150094)
-avg = mean(painAvg_150094$Pain.Score)
+##################### Test Case  ############################
+id = 151221
+patient <-subset(pains, pains$Log.id == id)
+patient
+avg <- mean(patient$Pain.Score, na.rm=TRUE)
 avg
+patients$avgPain[patients$Log.id == id] <- avg
+View(patients)
 
-#Making a function to automate the system
+
+##################### Subset of the patient to calcluate pain ##################
 patientAvgPain <- function(id) {
   patient <-subset(pains, pains$Log.id == id)
-  avg = mean(patient$Pain.Score)
-  return(avg)
+  avgPain <- mean(patient$Pain.Score, na.rm=TRUE)
+  return(avgPain)
 }
 
-#Calculating average of 10 patients
-avg = patientAvgPain("150094")
-avg2 = patientAvgPain("150440")
-avg3 = patientAvgPain("150934")
-avg4 = patientAvgPain("151221")
-avg5 = patientAvgPain("152066")
-avg6 = patientAvgPain("152097")
-avg7 = patientAvgPain("152680")
-avg8 = patientAvgPain("153788")
-avg9 = patientAvgPain("154545")
-avg10 = patientAvgPain("154677")
 
-#adding avg to the dataFrame 
-patients$avgPain[patients$Log.id == "150094"] <- avg
-patients$avgPain[patients$Log.id == "150440"] <- avg2
-patients$avgPain[patients$Log.id == "150934"] <- avg3
-patients$avgPain[patients$Log.id == "151221"] <- avg4
-patients$avgPain[patients$Log.id == "152066"] <- avg5
-patients$avgPain[patients$Log.id == "152097"] <- avg6
-patients$avgPain[patients$Log.id == "152680"] <- avg7
-patients$avgPain[patients$Log.id == "153788"] <- avg8
-patients$avgPain[patients$Log.id == "154545"] <- avg9
-patients$avgPain[patients$Log.id == "154677"] <- avg10
+##################### AVERAGE pain of patients ############################
+# Start the clock!
+#ptm <- proc.time()
 
-#Setting Patients.name to null
-patients$Patient.name <- NULL
-patients
-dim(patients)
+for( i in 1:nrow(patients)) {
+  id <- patients[i, "Log.id"]
+  avg <- patientAvgPain(id) #getting the subset using the function
+  patients$avgPain[patients$Log.id == id] <- avg
+}
 
-#Retrieving patients with average Pain score 
-head(patients)
-painAvgPatients <- subset(patients, patients$avgPain != "NA")
-painAvgPatients
-attach(painAvgPatients)
+View(patients)
 
-#Histogram 
-hist(avgPain)
+# Stop the clock
+#proc.time() - ptm
 
-#ScatterPlot 
+##################### Correlation   ############################
+attach(patients)
+View(patients)
+patients["Patient.name"] <- NULL
+patients["X"] <- NULL
+
 par(mfrow=c(2,2))
-plot(avgPain, Wgt)
-plot(avgPain, Surgeon)
-plot(avgPain, LOS)
-plot(avgPain, BMI)
-plot(avgPain, Age)
+plot(Surgeon, avgPain, xlab = "Surgeon", ylab = "avgPain")
+plot(LOS, avgPain, xlab = "LOS", ylab = "avgPain")
+plot(BMI, avgPain, xlab = "BMI", ylab = "avgPain")
+plot(Wgt, avgPain, xlab = "Wgt", ylab = "avgPain")
+plot(Gender, avgPain, xlab = "Gender", ylab = "avgPain")
 
-abline(lm(avgPain~Age, data=patients))
+par(mfrow=c(2,2))
+pairs(patients)
+cor(patients)
+cor(patients, method = "pearson")
 
 
-#Linear Model
-summary(fit)
-plot(fit)
-##################### Finding the UNIQUE patients in pains.csv ############################
+# Pains plot
+View(pains)
+View(medications)
+View(patients)
 
-uniqPains <- pains[ !duplicated( pains[ c("Log.id") ] ) , ] #Finding the unique rows
-head(uniqPains)
-nrow(uniqPains)
+lm.fit = lm(patients$avgPain~Age+Gender+Wgt+BMI+LOS+Attnd.Class+Anesthesia+Hip.Knee+Procedure.Name+Surgeon, data=patients)
+summary(lm.fit)
 
-################## Retrieving PATIENT details AND their respective PAIN ###################
 
-nrow(patients)
-nrow(uniqPains)
-head(patients)
-head(uniqPains)
+lm.fit1 = lm(patients$avgPain~Age+Wgt+BMI+LOS+Attnd.Class+Anesthesia+Hip.Knee+Procedure.Name+Surgeon, data=patients)
+summary(lm.fit1)
+
+
+lm.fit2 = lm(patients$avgPain~Age+LOS+Surgeon, data=patients,na.action="na.exclude")
+summary(lm.fit2)
+
+#install.packages('DAAG')
+library(DAAG)
+
+na.omit(patients)
+View(patients)
+cv.lm(df=patients, lm.fit1, m=7)
+
+
+#removing 161687 
+patients$Log.id == 161687 <- NULL 
+
+
+
