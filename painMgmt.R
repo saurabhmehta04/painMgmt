@@ -64,9 +64,6 @@ plot(Gender, avgPain, xlab = "Gender", ylab = "avgPain")
 
 par(mfrow=c(2,2))
 pairs(patients)
-cor(patients)
-cor(patients, method = "pearson")
-
 
 # Pains plot
 View(pains)
@@ -81,8 +78,15 @@ lm.fit1 = lm(patients$avgPain~Age+Wgt+BMI+LOS+Attnd.Class+Anesthesia+Hip.Knee+Pr
 summary(lm.fit1)
 
 
-lm.fit2 = lm(patients$avgPain~Age+LOS+Surgeon, data=patients,na.action="na.exclude")
+lm.fit2 = lm(patients$avgPain~Age+LOS, data=patients,na.action="na.exclude") #p-value = 0.000939
 summary(lm.fit2)
+
+lm.fit2 = lm(patients$avgPain~Age+Surgeon, data=patients,na.action="na.exclude") #p-value = 0.002
+summary(lm.fit2)
+
+lm.fit2 = lm(patients$avgPain~LOS+Surgeon, data=patients,na.action="na.exclude") #p-value = 0.002
+summary(lm.fit2)
+
 
 #install.packages('DAAG')
 library(DAAG)
@@ -97,4 +101,9 @@ install.packages("xlsx")
 library(xlsx)
 write.xlsx(patients, file = "patientsWithAvgPain.xlsx")
 
-
+attach(patients)
+attach(pains)
+attach(medications)
+nrow(patients)
+nrow(pains)
+nrow(medications)
