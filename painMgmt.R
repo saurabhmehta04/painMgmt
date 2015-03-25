@@ -15,6 +15,13 @@ medications <- read.csv("Medications.csv",TRUE, ",")
 class(patients)
 head(patients)
 
+attach(patients)
+attach(pains)
+attach(medications)
+nrow(patients)
+nrow(pains)
+nrow(medications)
+
 
 ##################### Test Case  ############################
 id = 151221
@@ -77,9 +84,10 @@ summary(lm.fit)
 lm.fit1 = lm(patients$avgPain~Age+Wgt+BMI+LOS+Attnd.Class+Anesthesia+Hip.Knee+Procedure.Name+Surgeon, data=patients)
 summary(lm.fit1)
 
-
+################################### Significant model #######################################
 lm.fit2 = lm(patients$avgPain~Age+LOS, data=patients,na.action="na.exclude") #p-value = 0.000939
 summary(lm.fit2)
+#############################################################################################
 
 lm.fit2 = lm(patients$avgPain~Age+Surgeon, data=patients,na.action="na.exclude") #p-value = 0.002
 summary(lm.fit2)
@@ -88,6 +96,7 @@ lm.fit2 = lm(patients$avgPain~LOS+Surgeon, data=patients,na.action="na.exclude")
 summary(lm.fit2)
 
 
+########################  Performing cross validation ##############################
 #install.packages('DAAG')
 library(DAAG)
 
@@ -101,9 +110,3 @@ install.packages("xlsx")
 library(xlsx)
 write.xlsx(patients, file = "patientsWithAvgPain.xlsx")
 
-attach(patients)
-attach(pains)
-attach(medications)
-nrow(patients)
-nrow(pains)
-nrow(medications)
